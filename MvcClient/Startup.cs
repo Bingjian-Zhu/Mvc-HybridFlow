@@ -61,15 +61,14 @@ namespace MvcClient
                 options.Scope.Clear();
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
-                options.Scope.Add("roles");
-                options.Scope.Add("custom.profile");
+                //options.Scope.Add("roles");
+                options.Scope.Add("mvc.profile");
 
                 options.SaveTokens = true;
                 options.ClientSecret = "secret";
                 options.GetClaimsFromUserInfoEndpoint = true;
 
                 options.ClaimActions.MapUniqueJsonKey("role", "role");
-
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

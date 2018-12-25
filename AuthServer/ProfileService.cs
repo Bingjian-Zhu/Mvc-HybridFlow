@@ -96,32 +96,35 @@ namespace AuthServer
         {
             try
             {
-                DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
-                TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
-                var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                var client = new HttpClient();
-                client.SetBearerToken(tokenResponse.AccessToken);
-                var response = await client.GetAsync("http://localhost:5001/api/values/" + context.Subject.Identity.Name);
-                if (!response.IsSuccessStatusCode)
+                if (context.Subject.Identity.Name != null)
                 {
-                    throw new Exception("Resource server is not working!");
-                }
-                else
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    User user = JsonConvert.DeserializeObject<User>(content);
-                    //get subject from context (set in ResourceOwnerPasswordValidator.ValidateAsync),
-                    var userId = context.Subject.Claims.FirstOrDefault(x => x.Type == "sub");
-
-                    if (!string.IsNullOrEmpty(userId?.Value) && long.Parse(userId.Value) > 0)
+                    DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
+                    TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
+                    var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+                    var client = new HttpClient();
+                    client.SetBearerToken(tokenResponse.AccessToken);
+                    var response = await client.GetAsync("http://localhost:5001/api/values/" + context.Subject.Identity.Name);
+                    if (!response.IsSuccessStatusCode)
                     {
-                        //var user = await _userRepository.FindAsync(long.Parse(userId.Value));
+                        throw new Exception("Resource server is not working!");
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        User user = JsonConvert.DeserializeObject<User>(content);
+                        //get subject from context (set in ResourceOwnerPasswordValidator.ValidateAsync),
+                        var userId = context.Subject.Claims.FirstOrDefault(x => x.Type == "sub");
 
-                        if (user != null)
+                        if (!string.IsNullOrEmpty(userId?.Value) && long.Parse(userId.Value) > 0)
                         {
-                            if (user.IsActive)
+                            //var user = await _userRepository.FindAsync(long.Parse(userId.Value));
+
+                            if (user != null)
                             {
-                                context.IsActive = user.IsActive;
+                                if (user.IsActive)
+                                {
+                                    context.IsActive = user.IsActive;
+                                }
                             }
                         }
                     }

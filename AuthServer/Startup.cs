@@ -35,6 +35,9 @@ namespace AuthServer
                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>()
                .AddProfileService<ProfileService>();
 
+            //services.AddTransient<IResourceOwnerPasswordValidator, ResourceOwnerPasswordValidator>();
+            //services.AddTransient<IProfileService, ProfileService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
