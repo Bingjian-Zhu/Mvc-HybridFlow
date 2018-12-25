@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MvcClient.Models;
 
 namespace MvcClient.Controllers
@@ -18,10 +20,13 @@ namespace MvcClient.Controllers
             return View();
         }
 
-        public IActionResult About()
+        public async Task<IActionResult> About()
         {
-            ViewData["Message"] = "Your application description page.";
-
+            var discoveryClient = new DiscoveryClient("http://localhost:5000");
+            var doc = await discoveryClient.GetAsync();
+            var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint);
+            var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+            ViewData["AccessToken"] = accessToken;
             return View();
         }
 

@@ -74,7 +74,7 @@ namespace AuthServer
                         new Secret("secret".Sha256())
                     },
                     AllowedScopes = { "api1" },
-                    Claims= new List<Claim>(){new Claim(JwtClaimTypes.Role,"AuthServer") },
+                    Claims= new List<Claim>(){new Claim("role","AuthServer") },
                     ClientClaimsPrefix = ""
                 },
                 // OpenID Connect implicit flow client (MVC)
