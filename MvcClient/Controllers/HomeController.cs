@@ -18,6 +18,7 @@ namespace MvcClient.Controllers
             return View();
         }
 
+        [Authorize(Roles ="admin")]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";

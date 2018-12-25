@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MvcClient
 {
@@ -41,7 +44,11 @@ namespace MvcClient
                 options.DefaultScheme = "Cookies";
                 options.DefaultChallengeScheme = "oidc";
             })
-            .AddCookie("Cookies")
+            .AddCookie("Cookies", options => 
+            {
+                //无权限，显示的页面
+                options.AccessDeniedPath = "/Authorization/AccessDenied";
+            })
             .AddOpenIdConnect("oidc", options =>
             {
                 options.SignInScheme = "Cookies";
@@ -51,13 +58,23 @@ namespace MvcClient
 
                 options.ClientId = "mvc";
                 options.ResponseType = "code id_token";
-                //options.Scope.Clear();
-                //options.Scope.Add("openid");
-                //options.Scope.Add("profile");
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("roles");
 
                 options.SaveTokens = true;
                 options.ClientSecret = "secret";
                 options.GetClaimsFromUserInfoEndpoint = true;
+
+                options.ClaimActions.MapUniqueJsonKey("role", "role");
+
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = JwtClaimTypes.GivenName,
+                    RoleClaimType = JwtClaimTypes.Role
+                };
             });
        }
 

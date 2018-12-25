@@ -25,8 +25,7 @@ namespace AuthServer
 
         //            Claims = new List<Claim>
         //            {
-        //                new Claim("given_name", "Nick"),
-        //                new Claim("family_name", "Carter")
+        //                new Claim("role", "user")
         //            }
         //        },
         //        new TestUser
@@ -37,8 +36,7 @@ namespace AuthServer
 
         //            Claims = new List<Claim>
         //            {
-        //                new Claim("given_name", "Dave"),
-        //                new Claim("family_name", "Mustaine")
+        //                new Claim("role", "admin")
         //            }
         //        }
         //    };
@@ -50,6 +48,7 @@ namespace AuthServer
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
+                new IdentityResource("roles","role",new List<string>{ "role"})
             };
         }
 
@@ -97,7 +96,8 @@ namespace AuthServer
                   AllowedScopes = new List<string>
                   {
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile
+                    IdentityServerConstants.StandardScopes.Profile,
+                    "roles"
                   }
                 }
             };
