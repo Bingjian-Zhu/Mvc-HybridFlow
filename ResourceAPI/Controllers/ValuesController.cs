@@ -73,6 +73,14 @@ namespace UserAuth.Controllers
             var res = context.Users.Where(p => p.UserName == userName)
                .Include(p => p.Claims)
                .FirstOrDefault();
+            if(res == null)
+            {
+                var user = context.Users.Where(p => p.UserId == userName)
+               .Include(p => p.Claims)
+               .FirstOrDefault();
+                return Ok(user.ToModel());
+            }
+            else
             return Ok(res.ToModel());
         }
 

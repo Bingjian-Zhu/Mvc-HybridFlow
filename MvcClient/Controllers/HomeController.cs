@@ -20,6 +20,7 @@ namespace MvcClient.Controllers
             return View();
         }
 
+        [Authorize(Roles ="admin")]
         public async Task<IActionResult> About()
         {
             var discoveryClient = new DiscoveryClient("http://localhost:5000");

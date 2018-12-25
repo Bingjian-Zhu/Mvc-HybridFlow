@@ -31,7 +31,9 @@ namespace AuthServer
                //.AddTestUsers(Config.GetUsers())
                .AddInMemoryIdentityResources(Config.GetIdentityResources())
                .AddInMemoryApiResources(Config.GetApiResources())
-               .AddInMemoryClients(Config.GetClients());
+               .AddInMemoryClients(Config.GetClients())
+               .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>()
+               .AddProfileService<ProfileService>();
 
         }
 

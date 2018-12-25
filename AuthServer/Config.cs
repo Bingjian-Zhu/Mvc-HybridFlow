@@ -44,11 +44,16 @@ namespace AuthServer
 
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
+            var customProfile = new IdentityResource(
+                name: "custom.profile",
+                displayName: "Custom profile",
+                claimTypes: new[] { "role" });
             return new List<IdentityResource>
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
-                new IdentityResource("roles","role",new List<string>{ "role"})
+                new IdentityResource("roles","role",new List<string>{ "role"}),
+                customProfile
             };
         }
 
@@ -97,7 +102,8 @@ namespace AuthServer
                   {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    "roles"
+                    "roles",
+                    "custom.profile"
                   }
                 }
             };
