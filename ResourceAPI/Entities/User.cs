@@ -18,7 +18,7 @@ namespace ResourceAPI.Entities
         [MaxLength(50)]
         public string Password { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; }//是否可用
 
         public virtual ICollection<Claims> Claims { get; set; }
 

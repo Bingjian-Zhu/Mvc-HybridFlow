@@ -12,36 +12,6 @@ namespace AuthServer
 {
     public class Config
     {
-
-        //public static List<TestUser> GetUsers()
-        //{
-        //    return new List<TestUser>
-        //    {
-        //        new TestUser
-        //        {
-        //            SubjectId = "1",
-        //            Username = "test",
-        //            Password = "123",
-
-        //            Claims = new List<Claim>
-        //            {
-        //                new Claim("role", "user")
-        //            }
-        //        },
-        //        new TestUser
-        //        {
-        //            SubjectId = "2",
-        //            Username = "admin",
-        //            Password = "123",
-
-        //            Claims = new List<Claim>
-        //            {
-        //                new Claim("role", "admin")
-        //            }
-        //        }
-        //    };
-        //}
-
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
             var customProfile = new IdentityResource(

@@ -67,21 +67,13 @@ namespace UserAuth.Controllers
 
         // GET api/values/5
         [Authorize(Roles = "AuthServer")]
-        [HttpGet("{userName}")]
-        public ActionResult<string> Get(string userName)
+        [HttpGet("{userId}")]
+        public ActionResult<string> Get(string userId)
         {
-            var res = context.Users.Where(p => p.UserName == userName)
-               .Include(p => p.Claims)
-               .FirstOrDefault();
-            if(res == null)
-            {
-                var user = context.Users.Where(p => p.UserId == userName)
-               .Include(p => p.Claims)
-               .FirstOrDefault();
-                return Ok(user.ToModel());
-            }
-            else
-            return Ok(res.ToModel());
+            var user = context.Users.Where(p => p.UserId == userId)
+           .Include(p => p.Claims)
+           .FirstOrDefault();
+            return Ok(user.ToModel());
         }
 
 

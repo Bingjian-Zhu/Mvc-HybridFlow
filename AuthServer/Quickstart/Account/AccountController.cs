@@ -208,12 +208,14 @@ namespace IdentityServer4.Quickstart.UI
 
             if (ModelState.IsValid)
             {
+                //从数据库获取User并进行验证
                 var client = _httpClientFactory.CreateClient();
                 //已过时
                 DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
                 TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
                 var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-
+                
+                //新方法
                 //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
                 //{
                 //    Address = "http://localhost:5000",
