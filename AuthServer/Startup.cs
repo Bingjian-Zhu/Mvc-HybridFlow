@@ -25,6 +25,7 @@ namespace AuthServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            //Add HttpClientFactory
             services.AddHttpClient();
 
             services.AddIdentityServer()
@@ -50,7 +51,7 @@ namespace AuthServer
             }
 
             app.UseIdentityServer();
-
+            //MVC配置
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
         }
