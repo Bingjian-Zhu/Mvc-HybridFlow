@@ -37,12 +37,14 @@ namespace IdentityServer4.Quickstart.UI
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
+            IHttpClientFactory httpClientFactory,
             TestUserStore users = null)
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
@@ -53,6 +55,7 @@ namespace IdentityServer4.Quickstart.UI
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+            _httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
@@ -205,11 +208,22 @@ namespace IdentityServer4.Quickstart.UI
 
             if (ModelState.IsValid)
             {
+                var client = _httpClientFactory.CreateClient();
+                //ÒÑ¹ýÊ±
                 DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
                 TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
                 var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                var client = new HttpClient();
+
+                //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                //{
+                //    Address = "http://localhost:5000",
+                //    ClientId = "AuthServer",
+                //    ClientSecret = "secret",
+                //    Scope = "api1"
+                //});
+                //if (tokenResponse.IsError) throw new Exception(tokenResponse.Error);
                 client.SetBearerToken(tokenResponse.AccessToken);
+
                 try
                 {
                     var response = await client.GetAsync("http://localhost:5001/api/values/" + model.Username + "/" + model.Password);

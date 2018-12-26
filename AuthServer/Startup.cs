@@ -25,6 +25,7 @@ namespace AuthServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddHttpClient();
 
             services.AddIdentityServer()
                .AddDeveloperSigningCredential()

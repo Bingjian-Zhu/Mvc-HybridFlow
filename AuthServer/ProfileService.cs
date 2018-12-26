@@ -15,6 +15,11 @@ namespace AuthServer
 {
     public class ProfileService : IProfileService
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+        public ProfileService(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
         ////services
         //private readonly IUserRepository _userRepository;
 
@@ -31,11 +36,22 @@ namespace AuthServer
                 //depending on the scope accessing the user data.
                 if (!string.IsNullOrEmpty(context.Subject.Identity.Name))
                 {
+                    var client = _httpClientFactory.CreateClient();
+                    //已过时
                     DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
                     TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
                     var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                    var client = new HttpClient();
+
+                    //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                    //{
+                    //    Address = "http://localhost:5000",
+                    //    ClientId = "AuthServer",
+                    //    ClientSecret = "secret",
+                    //    Scope = "api1"
+                    //});
+                    //if (TokenResponse.IsError) throw new Exception(TokenResponse.Error);
                     client.SetBearerToken(tokenResponse.AccessToken);
+
                     var response = await client.GetAsync("http://localhost:5001/api/values/" + context.Subject.Identity.Name);
                     if (!response.IsSuccessStatusCode)
                     {
@@ -49,8 +65,8 @@ namespace AuthServer
                         //var user = await _userRepository.FindAsync(context.Subject.Identity.Name);
                         if (user != null)
                         {
+                            //获取user中的Claims
                             var claims = GetUserClaims(user);
-
                             //set issued claims to return
                             //context.IssuedClaims = claims.Where(x => context.RequestedClaimTypes.Contains(x.Type)).ToList();
                             context.IssuedClaims = claims.ToList();
@@ -62,14 +78,26 @@ namespace AuthServer
                     //get subject from context (this was set ResourceOwnerPasswordValidator.ValidateAsync),
                     //where and subject was set to my user id.
                     var userId = context.Subject.Claims.FirstOrDefault(x => x.Type == "sub");
-
+                    //获取User_Id
                     if (!string.IsNullOrEmpty(userId?.Value) && long.Parse(userId.Value) > 0)
                     {
+                        var client = _httpClientFactory.CreateClient();
+                        //已过时
                         DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
                         TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
                         var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                        var client = new HttpClient();
+
+                        //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                        //{
+                        //    Address = "http://localhost:5000",
+                        //    ClientId = "AuthServer",
+                        //    ClientSecret = "secret",
+                        //    Scope = "api1"
+                        //});
+                        //if (TokenResponse.IsError) throw new Exception(TokenResponse.Error);
                         client.SetBearerToken(tokenResponse.AccessToken);
+
+                        //根据User_Id获取user
                         var response = await client.GetAsync("http://localhost:5001/api/values/" + long.Parse(userId.Value));
                         //get user from db (find user by user id)
                         //var user = await _userRepository.FindAsync(long.Parse(userId.Value));
@@ -78,9 +106,10 @@ namespace AuthServer
                         // issue the claims for the user
                         if (user != null)
                         {
-                            var claims = ResourceOwnerPasswordValidator.GetUserClaims(user);
-
-                            context.IssuedClaims = claims.Where(x => context.RequestedClaimTypes.Contains(x.Type)).ToList();
+                            //获取user中的Claims
+                            var claims = GetUserClaims(user);
+                            //context.IssuedClaims = claims.Where(x => context.RequestedClaimTypes.Contains(x.Type)).ToList();
+                            context.IssuedClaims = claims.ToList();
                         }
                     }
                 }
@@ -96,13 +125,24 @@ namespace AuthServer
         {
             try
             {
-                if (context.Subject.Identity.Name != null)
+                if (!string.IsNullOrEmpty(context.Subject.Identity.Name))
                 {
+                    var client = _httpClientFactory.CreateClient();
+                    //已过时
                     DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
                     TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
                     var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                    var client = new HttpClient();
+
+                    //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                    //{
+                    //    Address = "http://localhost:5000",
+                    //    ClientId = "AuthServer",
+                    //    ClientSecret = "secret",
+                    //    Scope = "api1"
+                    //});
+                    //if (TokenResponse.IsError) throw new Exception(TokenResponse.Error);
                     client.SetBearerToken(tokenResponse.AccessToken);
+
                     var response = await client.GetAsync("http://localhost:5001/api/values/" + context.Subject.Identity.Name);
                     if (!response.IsSuccessStatusCode)
                     {
@@ -137,15 +177,14 @@ namespace AuthServer
         }
         public static Claim[] GetUserClaims(User user)
         {
-            var claims = new Claim[user.Claims.Count];
-            //roles
-            int index = 0;
+            List<Claim> claims = new List<Claim>();
+            Claim claim;
             foreach (var itemClaim in user.Claims)
             {
-                claims[index] = new Claim(JwtClaimTypes.Role, itemClaim.Value);
-                index++;
+                claim = new Claim(itemClaim.Type, itemClaim.Value);
+                claims.Add(claim);
             }
-            return claims;
+            return claims.ToArray();
         }
     }
 }

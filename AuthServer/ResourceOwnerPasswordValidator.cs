@@ -15,51 +15,60 @@ namespace AuthServer
 {
     public class ResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+        public ResourceOwnerPasswordValidator(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
         public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
             try
             {
+                var client = _httpClientFactory.CreateClient();
+                //已过时
                 DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
                 TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
                 var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                var client = new HttpClient();
-                client.SetBearerToken(tokenResponse.AccessToken);
-                try
-                {
-                    var response = await client.GetAsync("http://localhost:5001/api/values/" + context.UserName + "/" + context.Password);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new Exception("Resource server is not working!");
-                    }
-                    else
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        User user = JsonConvert.DeserializeObject<User>(content);
-                        //get your user model from db (by username - in my case its email)
-                        //var user = await _userRepository.FindAsync(context.UserName);
-                        if (user != null)
-                        {
-                            //check if password match - remember to hash password if stored as hash in db
-                            if (user.Password == context.Password)
-                            {
-                                //set the result
-                                context.Result = new GrantValidationResult(
-                                    subject: user.UserId.ToString(),
-                                    authenticationMethod: "custom",
-                                    claims: GetUserClaims(user));
 
-                                return;
-                            }
-                            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Incorrect password");
+                //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                //{
+                //    Address = "http://localhost:5000",
+                //    ClientId = "AuthServer",
+                //    ClientSecret = "secret",
+                //    Scope = "api1"
+                //});
+                //if (TokenResponse.IsError) throw new Exception(TokenResponse.Error);
+                client.SetBearerToken(tokenResponse.AccessToken);
+
+                var response = await client.GetAsync("http://localhost:5001/api/values/" + context.UserName + "/" + context.Password);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Resource server is not working!");
+                }
+                else
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    User user = JsonConvert.DeserializeObject<User>(content);
+                    //get your user model from db (by username - in my case its email)
+                    //var user = await _userRepository.FindAsync(context.UserName);
+                    if (user != null)
+                    {
+                        //check if password match - remember to hash password if stored as hash in db
+                        if (user.Password == context.Password)
+                        {
+                            //set the result
+                            context.Result = new GrantValidationResult(
+                                subject: user.UserId.ToString(),
+                                authenticationMethod: "custom",
+                                claims: GetUserClaims(user));
+
                             return;
                         }
-                        context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "User does not exist.");
+                        context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Incorrect password");
                         return;
                     }
-                }
-                catch (Exception ex)
-                {
-                    context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Invalid username or password");
+                    context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "User does not exist.");
+                    return;
                 }
             }
             catch (Exception ex)
@@ -70,15 +79,14 @@ namespace AuthServer
         }
         public static Claim[] GetUserClaims(User user)
         {
-            var claims = new Claim[user.Claims.Count];
-            //roles
-            int index = 0;
+            List<Claim> claims = new List<Claim>();
+            Claim claim;
             foreach (var itemClaim in user.Claims)
             {
-                claims[index] = new Claim(JwtClaimTypes.Role, itemClaim.Value);
-                index++;
+                claim = new Claim(itemClaim.Type, itemClaim.Value);
+                claims.Add(claim);
             }
-            return claims;
+            return claims.ToArray();
         }
     }
 }
