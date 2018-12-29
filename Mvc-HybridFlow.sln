@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1EF5DA15-C768-4428-A679-5217D0C65803}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServer", "AuthServer\AuthServer.csproj", "{4DE7AF88-56F6-4EA1-B68C-64B327474BA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthServer", "AuthServer\AuthServer.csproj", "{4DE7AF88-56F6-4EA1-B68C-64B327474BA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcClient", "MvcClient\MvcClient.csproj", "{CFA11DAE-6B6E-48E3-A92B-1AA1E63AA8DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcClient", "MvcClient\MvcClient.csproj", "{CFA11DAE-6B6E-48E3-A92B-1AA1E63AA8DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResourceAPI", "ResourceAPI\ResourceAPI.csproj", "{FCBEA3B4-F0A1-4B74-BCBB-2C08B7C0F0CF}"
 EndProject

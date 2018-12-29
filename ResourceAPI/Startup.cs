@@ -65,6 +65,18 @@ namespace ResourceAPI
                     options.ApiName = "api1";
                 });
 
+            //JS-allow Ajax calls to be made from http://localhost:5003 to http://localhost:5001.
+            services.AddCors(options =>
+            {
+                //this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5003")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             services.AddMvc();
         }
 
@@ -82,6 +94,9 @@ namespace ResourceAPI
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "资源服务器API");
             });
+
+            //JS-Add the CORS middleware to the pipeline in Configure:
+            app.UseCors("default");
 
             InitDataBase(app);
             app.UseAuthentication();
