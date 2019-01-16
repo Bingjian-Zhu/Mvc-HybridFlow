@@ -211,21 +211,21 @@ namespace IdentityServer4.Quickstart.UI
                 //从数据库获取User并进行验证
                 var client = _httpClientFactory.CreateClient();
                 //已过时
-                DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
-                TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
-                var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-                
-                //新方法
-                //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-                //{
-                //    Address = "http://localhost:5000",
-                //    ClientId = "AuthServer",
-                //    ClientSecret = "secret",
-                //    Scope = "api1"
-                //});
-                //if (tokenResponse.IsError) throw new Exception(tokenResponse.Error);
-                client.SetBearerToken(tokenResponse.AccessToken);
+                //DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
+                //TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
+                //var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+                DiscoveryResponse disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
+                var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    Address = disco.TokenEndpoint,
+                    ClientId = "AuthServer",
+                    ClientSecret = "secret",
+                    Scope = "api1"
+                });
+                if (tokenResponse.IsError)
+                    throw new Exception(tokenResponse.Error);
 
+                client.SetBearerToken(tokenResponse.AccessToken);
                 try
                 {
                     var response = await client.GetAsync("http://localhost:5001/api/values/" + model.Username + "/" + model.Password);

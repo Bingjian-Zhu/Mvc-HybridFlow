@@ -26,20 +26,22 @@ namespace AuthServer
             {
                 var client = _httpClientFactory.CreateClient();
                 //已过时
-                DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
-                TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
-                var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+                //DiscoveryResponse disco = await DiscoveryClient.GetAsync("http://localhost:5000");
+                //TokenClient tokenClient = new TokenClient(disco.TokenEndpoint, "AuthServer", "secret");
+                //var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
 
-                //var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-                //{
-                //    Address = "http://localhost:5000",
-                //    ClientId = "AuthServer",
-                //    ClientSecret = "secret",
-                //    Scope = "api1"
-                //});
-                //if (TokenResponse.IsError) throw new Exception(TokenResponse.Error);
+                DiscoveryResponse disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
+                var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    Address = disco.TokenEndpoint,
+                    ClientId = "AuthServer",
+                    ClientSecret = "secret",
+                    Scope = "api1"
+                });
+                if (tokenResponse.IsError)
+                    throw new Exception(tokenResponse.Error);
+
                 client.SetBearerToken(tokenResponse.AccessToken);
-
                 var response = await client.GetAsync("http://localhost:5001/api/values/" + context.UserName + "/" + context.Password);
                 if (!response.IsSuccessStatusCode)
                 {
