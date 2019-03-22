@@ -85,8 +85,10 @@ namespace AuthServer
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = { "http://localhost:5003/callback.html" },
-                    PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
+                    //RedirectUris = { "http://localhost:5003/callback.html" },
+                    //PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
+                    RedirectUris = { "http://localhost:5003/CallBack" },
+                    PostLogoutRedirectUris = { "http://localhost:5003" },
                     AllowedCorsOrigins = { "http://localhost:5003" },
 
                     AllowedScopes =
